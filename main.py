@@ -11,8 +11,8 @@ import conway
 
 # Settings
 GRID_SIZE = 128
-FRAMES = 200
-CELL_SIZE = 4
+FRAMES = 64
+CELL_SIZE = 8
 
 img_file_path = 'images/'
 video_file = 'videos/conway.mp4'
@@ -38,7 +38,7 @@ def render_image(grid, fill=(30, 255, 100)):
             iy = gy * CELL_SIZE
 
             draw.rectangle([(ix, iy), (ix + CELL_SIZE, iy + CELL_SIZE)], 
-                           fill=fill)
+                           fill=fill, outline=None)
     return img
 
 
