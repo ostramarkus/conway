@@ -1,5 +1,3 @@
-import time 
-import random
 import os
 import glob
 from pathlib import Path
@@ -12,10 +10,9 @@ from alive_progress import alive_bar
 import conway
 
 # Settings
-grid_size = 200
+grid_size = 100
 cell_size = 4
-img_counter = 0
-ticks = 400
+ticks = 10
 img_frames = []
 ims = []
 img_file_path = 'images/'
@@ -23,9 +20,11 @@ video_file = 'videos/conway.mp4'
 
 
 def save_image(img, id):
+    """Saves a numbered image in PNG-format"""
     img.save(img_file_path + "img" + str(id).zfill(3) + ".png", "PNG")
 
-def render_pil_image(grid):
+def render_pil_image(grid, fill=(30, 255, 100)):
+    """Renders a 2 dimensional nparray as a PNG-image"""
     img_size = grid_size * cell_size
     img = Image.new("RGB", (img_size, img_size))
     draw = ImageDraw.Draw(img)
@@ -39,11 +38,12 @@ def render_pil_image(grid):
             iy = gy * cell_size
 
             draw.rectangle([(ix, iy), (ix + cell_size, iy + cell_size)], 
-                           fill=(30, 255, 100))
+                           fill=fill)
     return img
 
 
 def create_video():
+    """Renders a sequence of images as a video"""
     images = sorted(glob.glob(os.path.join(img_file_path, '*.png')))
 
     frame = cv2.imread(images[0])
@@ -62,11 +62,12 @@ def create_video():
 
 
 def main():
-    global img_counter
     grid = conway.setup_grid(grid_size)
     grid = conway.randomize_grid(grid)
 
     print('Generating images')
+
+    img_counter = 0
     with alive_bar(ticks) as bar:
         for i in range(ticks):
             grid = conway.update_grid(grid)
