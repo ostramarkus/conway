@@ -10,11 +10,10 @@ from alive_progress import alive_bar
 import conway
 
 # Settings
-grid_size = 100
-cell_size = 4
-ticks = 10
-img_frames = []
-ims = []
+GRID_SIZE = 128
+FRAMES = 200
+CELL_SIZE = 4
+
 img_file_path = 'images/'
 video_file = 'videos/conway.mp4'
 
@@ -23,9 +22,10 @@ def save_image(img, id):
     """Saves a numbered image in PNG-format"""
     img.save(img_file_path + "img" + str(id).zfill(3) + ".png", "PNG")
 
-def render_pil_image(grid, fill=(30, 255, 100)):
+
+def render_image(grid, fill=(30, 255, 100)):
     """Renders a 2 dimensional nparray as a PNG-image"""
-    img_size = grid_size * cell_size
+    img_size = GRID_SIZE * CELL_SIZE
     img = Image.new("RGB", (img_size, img_size))
     draw = ImageDraw.Draw(img)
 
@@ -34,10 +34,10 @@ def render_pil_image(grid, fill=(30, 255, 100)):
             gx = index[0]
             gy = index[1]
 
-            ix = gx * cell_size
-            iy = gy * cell_size
+            ix = gx * CELL_SIZE
+            iy = gy * CELL_SIZE
 
-            draw.rectangle([(ix, iy), (ix + cell_size, iy + cell_size)], 
+            draw.rectangle([(ix, iy), (ix + CELL_SIZE, iy + CELL_SIZE)], 
                            fill=fill)
     return img
 
@@ -51,7 +51,6 @@ def create_video():
 
     video = cv2.VideoWriter(video_file, cv2.VideoWriter_fourcc(*'mp4v'), 10, (width, height))
 
-    print('Creating video')
     with alive_bar(len(images)) as bar:
         for image in images:
             frame = cv2.imread(image)
@@ -60,22 +59,27 @@ def create_video():
 
     video.release()
 
+def delete_images():
+    """Delete image files"""
+    files = glob.glob(img_file_path + '*')
+    for f in files:
+        os.remove(f)
 
 def main():
-    grid = conway.setup_grid(grid_size)
+    delete_images()
+
+    grid = conway.setup_grid(GRID_SIZE)
     grid = conway.randomize_grid(grid)
 
-    print('Generating images')
-
-    img_counter = 0
-    with alive_bar(ticks) as bar:
-        for i in range(ticks):
+    print('--- Running generations - creating images ---')
+    with alive_bar(FRAMES) as bar:
+        for i in range(FRAMES):
             grid = conway.update_grid(grid)
-            img = render_pil_image(grid)
-            save_image(img, img_counter)
-            img_counter += 1
+            img = render_image(grid)
+            save_image(img, i)
             bar()
-        
+
+    print('--- Creating video ---')
     create_video()
 
 if __name__ == '__main__':
